@@ -67,7 +67,7 @@ variable "min_size" {
 variable "max_size" {
   description = "Maximum number of worker nodes"
   type        = number
-  default     = 3
+  default     = 5
 }
 
 variable "capacity_type" {
