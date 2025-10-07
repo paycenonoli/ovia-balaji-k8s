@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: liveness-deploy
+  namespace: ovia
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: liveness-pods
+  template:
+    metadata:
+      namespace: ovia
+      labels: 
+        app: liveness-pods
+    spec:
+      containers:
+      - name: liveness-container
+        image: ojpascale/ovia-maven-web:v1
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+            memory: 250Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
+        livenessProbe:
+          httpGet:
+            path: /maven-web-application/
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /maven-web-application/
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovia-svc
+  namespace: ovia
+spec:
+  selector:
+    app: liveness-pods
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 8080
+
+
+
+

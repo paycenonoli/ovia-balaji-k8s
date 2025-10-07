@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: maven-web-deploy
+  namespace: pretre
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: maven-webapp
+  template:
+    metadata:
+      labels: 
+        app: maven-webapp
+    spec:
+      containers:
+      - name: maven-webapp-container
+        image: ojpascale/ovia-devops:v1
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 250m
+            memory: 200Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
+      imagePullSecrets: # First, create the secret on the command line: kubectl create secret docker-registry regcred --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>
+      - name: dockercred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maven-webapp-svc
+  namespace: pretre
+spec:
+  selector:
+    app: maven-webapp
+  ports:
+  - port: 80
+    targetPort: 8080
+
+
+
+
+
+
+
+
+

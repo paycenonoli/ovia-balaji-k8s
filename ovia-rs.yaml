@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: ovia-rs
+  namespace: ovia-ns
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ovia-app
+  template:
+    metadata:
+      name: ovia-webapp
+      namespace: ovia-ns
+      labels: 
+        app: ovia-app
+    spec:
+      containers:
+      - name: ovia-nginx
+        image: nginx
+        ports:
+        - containerPort: 80

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: resource-usage-demo
+  namespace: teama
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+    resources:
+      requests:
+        cpu: "0.5"          # Requests 0.5 CPU (50% of the quota for requests.cpu)
+        memory: "512Mi"     # Requests 512 MiB (50% of the quota for requests.memory)
+      limits:
+        cpu: "1"            # Limits CPU usage to 1 core (50% of the quota for limits.cpu)
+        memory: "1Gi"

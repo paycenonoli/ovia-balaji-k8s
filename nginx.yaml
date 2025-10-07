@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ovia
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ovia-nginx
+  labels:
+    app: nginx
+  namespace: ovia
+spec:
+  containers:
+  - name: ovia-nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+

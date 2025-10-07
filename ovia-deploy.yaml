@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ovia-deploy
+  name: ovia-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ovia-deploy
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: ovia-deploy
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources:
+          requests:
+            cpu: 250m
+            memory: 250mi
+          limits: 
+            cpu: 500m
+            memory: 500mi 
+

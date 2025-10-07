@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-app
+  namespace: ovia-ns
+spec:
+  replicas: 2
+  strategy: {}
+  selector:
+    matchLabels:
+      name: config-app
+  template:
+    metadata:
+      labels:
+        name: config-app
+    spec:
+      containers:
+      - name: config-app-container
+        image: dockerhandson/spring-boot-app:1
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
+        env:
+        - name: MONGO_DB_HOSTNAME
+          valueFrom:
+              configMapKeyRef:
+                name: ovia-config
+                key: hostname
+
+        - name: MONGO_DB_USERNAME
+          valueFrom:
+              configMapKeyRef:
+                name: ovia-config
+                key: username
+
+        - name: MONGO_DB_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: ovia-secret
+                key: password
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-app-svc
+  namespace: ovia-ns
+spec:
+  type: NodePort
+  selector:
+    name: config-app
+  ports:
+  - port: 80
+    targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodb
+  namespace: ovia-ns
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo-container
+          image: mongo
+          ports:
+          - containerPort: 27017
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: ovia-config
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ovia-secret
+                key: password
+
+          volumeMounts:
+          - name: mongodb-vol
+            mountPath: /data/db
+
+      volumes:
+      - name: mongodb-vol
+        persistentVolumeClaim:
+          claimName: mongopvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongopvc
+  namespace: ovia-ns
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc
+  namespace: ovia-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017

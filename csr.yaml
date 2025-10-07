@@ -1,0 +1,14 @@
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: prod-user
+spec:
+  request: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0K...  # Replace with actual Base64 CSR
+  signerName: kubernetes.io/kube-apiserver-client
+  expirationSeconds: 86400  # Optional (1 day validity)
+  usages:
+    - digital signature
+    - key encipherment
+    - client auth
+  groups:
+    - system:authenticated

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ovia-ns
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: ovia-rc
+  namespace: ovia-ns
+spec:
+  replicas: 4
+  selector:
+    app: nginx
+  template: # Pod template
+    metadata:
+     name: ovia-nginx
+     labels:
+       app: nginx
+    spec:
+     containers:
+     - name: ovia-nginx
+       image: nginx
+       ports:
+       - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovia-svc
+  namespace: ovia-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80

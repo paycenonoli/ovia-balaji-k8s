@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: spring-app-deploy
+  namespace: ovia-ns
+spec:
+  replicas: 2
+  strategy: {}
+  selector:
+    matchLabels:
+      name: spring-app
+  template:
+    metadata:
+      labels: 
+        name: spring-app
+    spec:
+      containers:
+      - name: spring-app-container
+        image: dockerhandson/spring-boot-app:1
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
+        env:
+        - name: MONGO_DB_HOSTNAME
+          value: mongo-svc
+        - name: MONGO_DB_USERNAME
+          value: devdb
+        - name: MONGO_DB_PASSWORD
+          value: devdb123
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc
+  namespace: ovia-ns
+spec:
+  selector:
+    name: spring-app
+  ports:
+  - port: 80
+    targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodb
+  namespace: ovia-ns
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo-container
+          image: mongo
+          ports:
+          - containerPort: 27017
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            value: devdb
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            value: devdb123
+          
+          volumeMounts:
+          - name: mongodb-vol
+            mountPath: /data/db
+
+      volumes:
+      - name: mongodb-vol
+        hostPath:
+          path: /mongo-data
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc
+  namespace: ovia-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+
+

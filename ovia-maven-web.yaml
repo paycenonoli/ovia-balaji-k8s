@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ovia
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ovia-app
+  labels:
+    app: ovia-webapp
+  namespace: ovia 
+
+spec:
+  containers:
+  - name: ovia-web-container
+    image: ojpascale/ovia-maven-web:v1
+    ports:
+    - containerPort: 80
+    resources:
+      requests: 
+        cpu: 1
+        memory: 250Mi
+      limits:
+        cpu: 2
+        memory: 500Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovia-svc
+  namespace: ovia 
+spec:
+  type: ClusterIP
+  selector:
+    app: ovia-webapp
+  ports:
+  - port: 80
+    targetPort: 8080
